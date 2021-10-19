@@ -17,7 +17,9 @@
 * You should have received a copy of the GNU General Public License
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
-
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include<iostream>
 #include<algorithm>
@@ -28,18 +30,24 @@
 #include <cv_bridge/cv_bridge.h>
 
 #include<opencv2/core/core.hpp>
-
+////////////////
+#include "std_msgs/Float64MultiArray.h"
+#include <Eigen/Dense>
+///////////////
 #include"../../../include/System.h"
-
+VectorXd metrix2;
 using namespace std;
+//////
+Eigen::Matrix<float, Dynamic, Dynamic> metrix2;
 
+//////
 class ImageGrabber
 {
 public:
     ImageGrabber(ORB_SLAM2::System* pSLAM):mpSLAM(pSLAM){}
 
     void GrabImage(const sensor_msgs::ImageConstPtr& msg);
-
+    void GrabMetrix(const std_msgs::Float64MultiArray msg)
     ORB_SLAM2::System* mpSLAM;
 };
 
@@ -61,7 +69,12 @@ int main(int argc, char **argv)
     ImageGrabber igb(&SLAM);
 
     ros::NodeHandle nodeHandler;
+////////////////////
+    ros::Subscriber sub2 = nodeHandler.subscribe("robot_pose", 1, &ImageGrabber::GrabMetrix);
+//////////////////////////
     ros::Subscriber sub = nodeHandler.subscribe("/camera/image_raw", 1, &ImageGrabber::GrabImage,&igb);
+    //MXW9.7
+    
 
     ros::spin();
 
@@ -89,8 +102,19 @@ void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr& msg)
         ROS_ERROR("cv_bridge exception: %s", e.what());
         return;
     }
-
-    mpSLAM->TrackMonocular(cv_ptr->image,cv_ptr->header.stamp.toSec());
+    //mpSLAM->TrackMonocular(cv_ptr->image,cv_ptr->header.stamp.toSec());
+/////
+    mpSLAM->TrackMonocularRos(cv_ptr->image,cv_ptr->header.stamp.toSec(),metrix2);
+/////
 }
-
-
+//////
+void ImageGrabber::GrabMetrix(const std_msgs::Float64MultiArray msg)
+{
+    Eigen::VectorXd metrix=(Eigen::VectorXd) msg.data;
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> metrix2;
+    metrix2=metrix.tail(metrix.size()-1);
+    int a = msg.data.at(0);
+    int b = msg.data.at(1);
+    metrix2.resize(a,b);
+}
+//////
