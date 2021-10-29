@@ -28,7 +28,7 @@
 #include "Frame.h"
 
 #include "Thirdparty/g2o/g2o/types/types_seven_dof_expmap.h"
-
+extern Eigen::Matrix<float, Dynamic, Dynamic> metrix2;
 namespace ORB_SLAM2
 {
 
