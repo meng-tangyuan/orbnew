@@ -32,14 +32,13 @@
 #include<opencv2/core/core.hpp>
 ////////////////
 #include "std_msgs/Float64MultiArray.h"
-#include <Eigen/Dense>
+#include <Eigen/Core>
 ///////////////
 #include"../../../include/System.h"
-VectorXd metrix2;
 using namespace std;
 //////
-Eigen::Matrix<float, Dynamic, Dynamic> metrix2;
-
+Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic>  metrix2;
+//Eigen::MatrixXd metrix2;
 //////
 class ImageGrabber
 {
@@ -47,7 +46,7 @@ public:
     ImageGrabber(ORB_SLAM2::System* pSLAM):mpSLAM(pSLAM){}
 
     void GrabImage(const sensor_msgs::ImageConstPtr& msg);
-    void GrabMetrix(const std_msgs::Float64MultiArray msg)
+    void GrabMetrix(const std_msgs::Float64MultiArray msg);
     ORB_SLAM2::System* mpSLAM;
 };
 
@@ -70,7 +69,7 @@ int main(int argc, char **argv)
 
     ros::NodeHandle nodeHandler;
 ////////////////////
-    ros::Subscriber sub2 = nodeHandler.subscribe("robot_pose", 1, &ImageGrabber::GrabMetrix);
+    ros::Subscriber sub2 = nodeHandler.subscribe("robot_pose", 1, &ImageGrabber::GrabMetrix,&igb);
 //////////////////////////
     ros::Subscriber sub = nodeHandler.subscribe("/camera/image_raw", 1, &ImageGrabber::GrabImage,&igb);
     //MXW9.7
@@ -102,19 +101,43 @@ void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr& msg)
         ROS_ERROR("cv_bridge exception: %s", e.what());
         return;
     }
-    //mpSLAM->TrackMonocular(cv_ptr->image,cv_ptr->header.stamp.toSec());
+    mpSLAM->TrackMonocular(cv_ptr->image,cv_ptr->header.stamp.toSec());
 /////
-    mpSLAM->TrackMonocularRos(cv_ptr->image,cv_ptr->header.stamp.toSec(),metrix2);
+    //mpSLAM->TrackMonocularRos(cv_ptr->image,cv_ptr->header.stamp.toSec());
 /////
 }
 //////
 void ImageGrabber::GrabMetrix(const std_msgs::Float64MultiArray msg)
 {
-    Eigen::VectorXd metrix=(Eigen::VectorXd) msg.data;
-    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> metrix2;
-    metrix2=metrix.tail(metrix.size()-1);
-    int a = msg.data.at(0);
+    //Eigen::VectorXd metrix=(Eigen::VectorXd) msg.data;
+    //Eigen::RowVectorXd metrix;
+    //Eigen::RowVectorXd metrix3;
+     int a = msg.data.at(0);
     int b = msg.data.at(1);
+     int inij;
+    //int num= msg.data.at(0)*msg.data.at(1);
+    for(int i=0; i<a;i++)
+    {
+        if(i==0)
+        {
+           inij=2;
+        }
+        else
+        {
+            inij=0;
+        }
+        for( int j=inij; j<b;j++)
+        {
+
+             metrix2(i,j)=msg.data.at(i);
+
+        }
+       
+    }
+    //Eigen::MatrixXd metrix2;
+    //metrix3=metrix.tail(num-2);
+    //metrix2=Eigen::Map<Eigen::MatrixXd>(metrix3.data());
+   
     metrix2.resize(a,b);
 }
 //////

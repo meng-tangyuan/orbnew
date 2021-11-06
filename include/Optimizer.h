@@ -20,7 +20,7 @@
 
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
-
+#include <Eigen/Dense>
 #include "Map.h"
 #include "MapPoint.h"
 #include "KeyFrame.h"
@@ -28,7 +28,8 @@
 #include "Frame.h"
 
 #include "Thirdparty/g2o/g2o/types/types_seven_dof_expmap.h"
-extern Eigen::Matrix<float, Dynamic, Dynamic> metrix2;
+extern Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> metrix2;
+//externEigen::MatrixXd metrix2;
 namespace ORB_SLAM2
 {
 

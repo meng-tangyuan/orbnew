@@ -292,7 +292,7 @@ int Optimizer::PoseOptimization(Frame *pFrame)
                 const cv::KeyPoint &kpUn = pFrame->mvKeysUn[i];
                 obs << kpUn.pt.x, kpUn.pt.y;
                 float  prob=metrix2( kpUn.pt.x, kpUn.pt.y);
-                cout<<metrix2<<endl;
+                cout<<prob<<endl;
 
                 g2o::EdgeSE3ProjectXYZOnlyPose* e = new g2o::EdgeSE3ProjectXYZOnlyPose();
 
